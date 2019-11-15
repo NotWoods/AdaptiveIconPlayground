@@ -233,7 +233,7 @@ class MainActivity : AppCompatActivity() {
 
         supportLoaderManager.initLoader(0, Bundle.EMPTY,
                 object : LoaderManager.LoaderCallbacks<List<AdaptiveIconDrawable>> {
-                    override fun onCreateLoader(id: Int, args: Bundle) =
+                    override fun onCreateLoader(id: Int, args: Bundle?) =
                             AdaptiveIconLoader(applicationContext)
 
                     override fun onLoadFinished(loader: Loader<List<AdaptiveIconDrawable>>,
@@ -312,8 +312,8 @@ class MainActivity : AppCompatActivity() {
             return adaptiveIcons
         }
 
-        override fun deliverResult(data: List<AdaptiveIconDrawable>) {
-            icons += data
+        override fun deliverResult(data: List<AdaptiveIconDrawable>?) {
+            icons += data.orEmpty()
             super.deliverResult(data)
         }
     }
@@ -381,7 +381,7 @@ class MainActivity : AppCompatActivity() {
         private var initialized = false
 
         override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView,
-                                    state: RecyclerView.State?) {
+                                    state: RecyclerView.State) {
             if (!initialized) calculateOffsets(parent)
             outRect.set(offsets)
         }
