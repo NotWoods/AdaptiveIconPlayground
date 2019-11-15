@@ -38,6 +38,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.FloatRange
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
 import androidx.dynamicanimation.animation.FloatPropertyCompat
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.loader.app.LoaderManager
@@ -48,6 +49,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlin.math.max
 
 class MainActivity : AppCompatActivity() {
 
@@ -87,64 +89,64 @@ class MainActivity : AppCompatActivity() {
     private var orientation = HORIZONTAL
     private var adapter: IconAdapter? = null
 
-    private var springStiffness = 500f
-        get() = Math.max(stiffness.progress.toFloat(), 50f)
+    private val springStiffness
+        get() = max(stiffness.progress.toFloat(), 50f)
 
-    private var springDamping = 0.3f
-        get() = Math.max(damping.progress / 100f, 0.05f)
+    private val springDamping
+        get() = max(damping.progress / 100f, 0.05f)
 
     private var iconCornerRadius
         get() = adapter?.iconCornerRadius ?: 0f
         set(value) {
             applyGridProperty(
-                    { ad -> ad.iconCornerRadius = value },
-                    { iv -> iv.cornerRadius = value })
+                    { iconCornerRadius = value },
+                    { cornerRadius = value })
         }
 
     private var velocityX = 0f
         set(value) {
             applyGridProperty(
-                    { ad -> ad.velocityX = value },
-                    { iv -> iv.velocityX = value })
+                    { velocityX = value },
+                    { velocityX = value })
         }
 
     private var velocityY = 0f
         set(value) {
             applyGridProperty(
-                    { ad -> ad.velocityY = value },
-                    { iv -> iv.velocityY = value })
+                    { velocityY = value },
+                    { velocityY = value })
         }
 
     private var foregroundTranslateFactor
         get() = adapter?.foregroundTranslateFactor ?: DEF_FOREGROUND_TRANSLATE_FACTOR
         set(value) {
             applyGridProperty(
-                    { ad -> ad.foregroundTranslateFactor = value },
-                    { iv -> iv.foregroundTranslateFactor = value })
+                    { foregroundTranslateFactor = value },
+                    { foregroundTranslateFactor = value })
         }
 
     private var backgroundTranslateFactor
         get() = adapter?.backgroundTranslateFactor ?: DEF_BACKGROUND_TRANSLATE_FACTOR
         set(value) {
             applyGridProperty(
-                    { ad -> ad.backgroundTranslateFactor = value },
-                    { iv -> iv.backgroundTranslateFactor = value })
+                    { backgroundTranslateFactor = value },
+                    { backgroundTranslateFactor = value })
         }
 
     private var foregroundScaleFactor
         get() = adapter?.foregroundScaleFactor ?: DEF_FOREGROUND_SCALE_FACTOR
         set(value) {
             applyGridProperty(
-                    { ad -> ad.foregroundScaleFactor = value },
-                    { iv -> iv.foregroundScaleFactor = value })
+                    { foregroundScaleFactor = value },
+                    { foregroundScaleFactor = value })
         }
 
     private var backgroundScaleFactor
         get() = adapter?.backgroundScaleFactor ?: DEF_BACKGROUND_SCALE_FACTOR
         set(value) {
             applyGridProperty(
-                    { ad -> ad.backgroundScaleFactor = value },
-                    { iv -> iv.backgroundScaleFactor = value })
+                    { backgroundScaleFactor = value },
+                    { backgroundScaleFactor = value })
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -271,13 +273,11 @@ class MainActivity : AppCompatActivity() {
      * Helper function for setting a property on both the adapter and on all views in the grid
      */
     private inline fun applyGridProperty(
-            adapterAction: (IconAdapter) -> Unit,
-            iconViewAction: (AdaptiveIconView) -> Unit) {
-        adapter?.let {
-            adapterAction(it)
-            (0 until grid.childCount)
-                    .map { grid.getChildAt(it) as AdaptiveIconView }
-                    .forEach { iconViewAction(it) }
+            adapterAction: IconAdapter.() -> Unit,
+            iconViewAction: AdaptiveIconView.() -> Unit) {
+        adapter?.let { adapter ->
+            adapterAction(adapter)
+            grid.children.forEach { iconViewAction(it as AdaptiveIconView) }
         }
     }
 
@@ -347,7 +347,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        override fun getItemCount() = Math.max(adaptiveIcons.size, MIN_ICON_COUNT)
+        override fun getItemCount() = max(adaptiveIcons.size, MIN_ICON_COUNT)
 
         companion object {
             private const val MIN_ICON_COUNT = 40
@@ -397,8 +397,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun SeekBar.onSeek(progressChanged: (Int) -> Unit) {
-
+    private inline fun SeekBar.onSeek(crossinline progressChanged: (Int) -> Unit) {
         setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) =
                     progressChanged(progress)

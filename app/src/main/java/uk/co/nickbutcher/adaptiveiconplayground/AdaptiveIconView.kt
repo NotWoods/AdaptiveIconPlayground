@@ -29,6 +29,7 @@ import android.util.TypedValue
 import android.view.View
 import androidx.annotation.FloatRange
 import androidx.annotation.Keep
+import androidx.core.math.MathUtils.clamp
 import kotlin.reflect.KProperty
 
 /**
@@ -85,7 +86,7 @@ class AdaptiveIconView(
     @Keep // called by @animator/scale
     var scale = 0f
         set(@FloatRange(from = 0.0, to = 1.0) value) {
-            field = Math.max(0f, Math.min(1f, value))
+            field = clamp(value, 0f, 1f)
             backgroundScale = 1f + backgroundScaleFactor * value
             foregroundScale = 1f + foregroundScaleFactor * value
             scaleX = backgroundScale
