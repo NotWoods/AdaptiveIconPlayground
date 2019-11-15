@@ -104,8 +104,7 @@ class AdaptiveIconView(
                 color = shadowColor
             }
         }
-        layerSize = Math.round(TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 108f, context.resources.displayMetrics))
+        layerSize = resources.getDimensionPixelSize(R.dimen.icon_layer_size)
         layerCenter = (layerSize / 2).toFloat()
         iconSize = (layerSize / (1 + 2 * AdaptiveIconDrawable.getExtraInsetFraction())).toInt()
         viewportOffset = (layerSize - iconSize) / 2

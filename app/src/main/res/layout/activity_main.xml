@@ -71,7 +71,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/orientation"
+                android:id="@+id/orientationButton"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:background="@drawable/round_button"

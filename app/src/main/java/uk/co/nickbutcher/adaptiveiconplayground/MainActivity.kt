@@ -49,19 +49,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import androidx.recyclerview.widget.RecyclerView.VERTICAL
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.max
 
 class MainActivity : AppCompatActivity() {
 
-    private val grid by lazy(LazyThreadSafetyMode.NONE) {
-        findViewById<RecyclerView>(R.id.grid)
-    }
-    private val damping by lazy(LazyThreadSafetyMode.NONE) {
-        findViewById<SeekBar>(R.id.damping)
-    }
-    private val stiffness by lazy(LazyThreadSafetyMode.NONE) {
-        findViewById<SeekBar>(R.id.stiffness)
-    }
     private val velocityTracker = VelocityTracker.obtain()
     private val corners: FloatArray by lazy(LazyThreadSafetyMode.NONE) {
         val density = resources.displayMetrics.density
@@ -165,12 +157,10 @@ class MainActivity : AppCompatActivity() {
 
         val fastOutSlowIn = AnimationUtils.loadInterpolator(
                 this, android.R.interpolator.fast_out_slow_in)
-        findViewById<View>(R.id.mask).setOnClickListener {
+        mask.setOnClickListener {
             corner = ++corner % corners.size
-            with(ObjectAnimator.ofFloat(
-                    this@MainActivity,
-                    ICON_CORNER_RADIUS,
-                    corners[corner])) {
+            val animator = ObjectAnimator.ofFloat(this, ICON_CORNER_RADIUS, corners[corner])
+            animator.apply {
                 duration = 200L
                 interpolator = fastOutSlowIn
                 start()
@@ -185,7 +175,7 @@ class MainActivity : AppCompatActivity() {
             duration = 200L
             interpolator = fastOutSlowIn
         }
-        findViewById<View>(R.id.orientation).setOnClickListener { view ->
+        orientationButton.setOnClickListener { view ->
             orientation = orientation xor 1
             view.animate()
                     .rotation(if (orientation == VERTICAL) 90f else 0f)
@@ -196,32 +186,27 @@ class MainActivity : AppCompatActivity() {
             (grid.layoutManager as GridLayoutManager).orientation = orientation
         }
 
-        with(findViewById<ImageView>(R.id.background)) {
+        background.apply {
             setOnClickListener {
                 decor = decor.next()
                 grid.setBackgroundResource(decor.background)
                 window.statusBarColor = decor.status
                 setImageResource(decor.icon)
 
-                if (decor.darkStatusIcons) {
-                    systemUiVisibility = systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                systemUiVisibility = if (decor.darkStatusIcons) {
+                    systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
                 } else {
-                    systemUiVisibility =
-                            systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+                    systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
                 }
             }
         }
 
-        findViewById<SeekBar>(R.id.foreground_parallax)
-                .onSeek { progress -> foregroundTranslateFactor = progress / 100f }
-        findViewById<SeekBar>(R.id.background_parallax)
-                .onSeek { progress -> backgroundTranslateFactor = progress / 100f }
-        findViewById<SeekBar>(R.id.foreground_scale)
-                .onSeek { progress -> foregroundScaleFactor = progress / 100f }
-        findViewById<SeekBar>(R.id.background_scale)
-                .onSeek { progress -> backgroundScaleFactor = progress / 100f }
+        foreground_parallax.onSeek { progress -> foregroundTranslateFactor = progress / 100f }
+        background_parallax.onSeek { progress -> backgroundTranslateFactor = progress / 100f }
+        foreground_scale.onSeek { progress -> foregroundScaleFactor = progress / 100f }
+        background_scale.onSeek { progress -> backgroundScaleFactor = progress / 100f }
 
-        BottomSheetBehavior.from(findViewById<View>(R.id.settings_sheet)).setBottomSheetCallback(
+        BottomSheetBehavior.from(settings_sheet).setBottomSheetCallback(
                 object : BottomSheetBehavior.BottomSheetCallback() {
                     override fun onStateChanged(bottomSheet: View, newState: Int) {}
 
@@ -240,7 +225,7 @@ class MainActivity : AppCompatActivity() {
 
                     override fun onLoadFinished(loader: Loader<List<AdaptiveIconDrawable>>,
                                                 data: List<AdaptiveIconDrawable>) {
-                        findViewById<View>(R.id.loading).visibility = GONE
+                        loading.visibility = GONE
                         adapter = IconAdapter(data, corners[0])
                         grid.adapter = adapter
                         grid.setOnTouchListener(gridTouch)
@@ -355,7 +340,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private class IconViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var icon = itemView as AdaptiveIconView
+        val icon = itemView as AdaptiveIconView
     }
 
     private enum class Decor(

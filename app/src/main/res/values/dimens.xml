@@ -17,4 +17,6 @@
     <dimen name="sheet_peek">136dp</dimen>
     <dimen name="grid_bottom_padding">144dp</dimen>
     <dimen name="icon_size">88dp</dimen>
+
+    <dimen name="icon_layer_size">108dp</dimen>
 </resources>
